@@ -1,0 +1,10 @@
+# source - folder to watch for fbe files
+source: "C:/Users/jason/Downloads/"
+
+# destination - folder to move fbe files to
+destination: "C:/Users/jason/AppData/Roaming/Starbase/ssc/autosave/ship_blueprints/"
+
+# ptu - path to ptu ssc autosave folder
+
+# server - opts: "live" or "ptu" - not implemented
+server: "live"

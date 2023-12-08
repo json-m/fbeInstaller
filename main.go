@@ -43,7 +43,8 @@ func onReady() {
 	systray.SetTitle("fbeInstaller")
 	systray.SetTooltip("fbeInstaller")
 	systray.SetIcon(icon.Data)
-	mRemoveFiles := systray.AddMenuItem("Remove Installed Files", "remove installed .fbe")
+	mRemoveFiles := systray.AddMenuItem("remove installed fbe(s)", "remove installed .fbe")
+	//mToggleServer todo: support toggling between live/ptu servers
 	mQuit := systray.AddMenuItem("quit", "quit the application")
 	go func() {
 		<-mQuit.ClickedCh
@@ -70,7 +71,7 @@ func onExit() {
 
 func removeInstalledFiles() {
 	for _, fileName := range installed {
-		shipFilePath := filepath.Join(os.Getenv("APPDATA"), "Starbase", "ssc", "autosave", "ship_blueprints", fileName)
+		shipFilePath := filepath.Join(Config.Destination, fileName)
 		err := os.Remove(shipFilePath)
 		if err != nil {
 			log.Printf("unable to remove file %s: %v", fileName, err)
@@ -85,8 +86,8 @@ func removeInstalledFiles() {
 }
 
 func processFiles() {
-	// get files with .fbe extension in %userprofile%\Downloads folder
-	fbes := filepath.Join(os.Getenv("USERPROFILE"), "Downloads")
+	// get files with .fbe extension in source folder
+	fbes := filepath.Dir(Config.Source)
 	files, err := filepath.Glob(filepath.Join(fbes, "*.fbe"))
 	if err != nil {
 		log.Fatal(err)
@@ -98,8 +99,8 @@ func processFiles() {
 		fbe := files[0]
 		log.Println("hopefully moving:", fbe)
 
-		// get files with .fbe extension in %appdata%\Starbase\ssc\autosave\ship_blueprints\ folder
-		files, err = filepath.Glob(filepath.Join(os.Getenv("APPDATA"), "Starbase", "ssc", "autosave", "ship_blueprints", "*.fbe"))
+		// get files with .fbe extension in destination folder
+		files, err = filepath.Glob(filepath.Join(Config.Destination, "*.fbe"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -118,8 +119,8 @@ func processFiles() {
 		highestNumber++
 		fmt.Println(highestNumber)
 
-		// copy fbe to %appdata%\Starbase\ssc\autosave\ship_blueprints\ship_%d.fbe
-		newPath := filepath.Join(os.Getenv("APPDATA"), "Starbase", "ssc", "autosave", "ship_blueprints", fmt.Sprintf("ship_%d.fbe", highestNumber))
+		// copy fbe to destination\ship_%d.fbe
+		newPath := filepath.Join(Config.Destination, fmt.Sprintf("ship_%d.fbe", highestNumber))
 		err = os.Rename(fbe, newPath)
 		if err != nil {
 			log.Fatal(err)
